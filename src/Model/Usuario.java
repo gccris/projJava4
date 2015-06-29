@@ -3,7 +3,7 @@ public class Usuario {
 	private String id;
 	private String senha;
 	private String nome;
-	private String endereço;
+	private String endereco;
 	private String telefone;
 	private String email;
 	
@@ -38,12 +38,12 @@ public class Usuario {
 		this.nome = nome;
 	}
 
-	public String getEndereço() {
-		return endereço;
+	public String getEndereco() {
+		return endereco;
 	}
 
-	public void setEndereço(String endereço) {
-		this.endereço = endereço;
+	public void setEndereço(String endereco) {
+		this.endereco = endereco;
 	}
 
 	public String getTelefone() {

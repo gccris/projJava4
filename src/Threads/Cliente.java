@@ -2,6 +2,8 @@ package Threads;
 
 import java.io.*;
 
+import Util.OperacoesCliente;
+
 public class Cliente{
 	private BufferedReader entrada;
 	private PrintWriter saida;
@@ -30,13 +32,13 @@ public class Cliente{
 		
 	}*/
 	
-	public Boolean Login(String login,String senha){
+	public Boolean login(String login,String senha){
 		this.getSaida().println("1");  //avisa o servidor que é um login
 		this.getSaida().println(login);
 		this.getSaida().println(senha);
 		try {
-			String resultado = this.getEntrada().readLine();
-			if(resultado.compareTo("logado") == 0);
+			Boolean resultado = OperacoesCliente.usuarioCadastrado(login, senha);
+			if(resultado)
 				return true; 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

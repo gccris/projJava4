@@ -32,9 +32,9 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	public Servidor(int porta) {
 		this.porta = porta;
 	    this.clientes = new ArrayList<PrintStream>();
-	    this.listUsuarios = new ArrayList<Usuario>();
-	    this.listProdutos = new ArrayList<Produto>();
-	    this.listEstoque = new ArrayList<Estoque>();
+	    this.listUsuarios = manipulacaoArquivos.loadUsuarios();
+	    this.listProdutos = manipulacaoArquivos.loadProdutos();
+	    this.listEstoque = manipulacaoArquivos.loadEstoque();
 	    //TODO carregar lists
 	}
 	
@@ -73,6 +73,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	public Boolean Login(String user,String senha){
 		 return GerenciaSupermecado.verificaLogin(user,senha,listUsuarios);
 	}
+	
 	public Boolean criaUsuario(String id, String senha,String nome,String endereco,String telefone,String email) throws IOException{
 		if(GerenciaSupermecado.existeUsuario(id, listUsuarios))
 			return false;

@@ -13,6 +13,10 @@ public class Produto {
 		this.setValidade(validade);
 		this.setFornecedor(fornecedor);
 	}
+	
+	public Produto(String nome) {
+		this.setNome(nome);
+	}
 
 	public String getNome() {
 		return nome;

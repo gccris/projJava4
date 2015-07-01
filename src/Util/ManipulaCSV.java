@@ -1,11 +1,14 @@
 package Util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import Model.Usuario;
+import Model.*;
 
 public class ManipulaCSV {
 	private String arquivoUsuario;
@@ -50,7 +53,89 @@ public class ManipulaCSV {
 	}
 	
 	public ArrayList<Usuario> loadUsuarios(){
-		return null;
+		BufferedReader leitor;
+		
+		try {
+			leitor = new BufferedReader(new FileReader(getArquivoUsuario()));
+		} catch(FileNotFoundException ex) {
+			return null;	//caso o arquivo nao exista retorna nulo;
+		}
+		
+		ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
+		String linhaLida;
+		String[] valoresLidos = new String[6];
+		
+		try {
+			while ((linhaLida = leitor.readLine()) != null)
+			{
+				valoresLidos = linhaLida.split(",");
+				usuarios.add(new Usuario(valoresLidos[0],valoresLidos[1],valoresLidos[2],
+						  	 valoresLidos[3],valoresLidos[4],valoresLidos[5]));
+			}
+			
+			leitor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return usuarios;
+	}
+	
+	public ArrayList<Produto> loadProdutos(){
+		BufferedReader leitor;
+		
+		try {
+			leitor = new BufferedReader(new FileReader(getArquivoProduto()));
+		} catch(FileNotFoundException ex) {
+			return null;	//caso o arquivo nao exista retorna nulo;
+		}
+		
+		ArrayList<Produto> produtos = new ArrayList<Produto>();
+		String linhaLida;
+		String[] valoresLidos = new String[4];
+		
+		try {
+			while ((linhaLida = leitor.readLine()) != null)
+			{
+				valoresLidos = linhaLida.split(",");
+				produtos.add(new Produto(valoresLidos[0],valoresLidos[1],
+										 valoresLidos[2],valoresLidos[3]));
+			}
+			
+			leitor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return produtos;
+	}
+	
+	public ArrayList<Estoque> loadEstoque(){
+		BufferedReader leitor;
+		
+		try {
+			leitor = new BufferedReader(new FileReader(getArquivoEstoque()));
+		} catch(FileNotFoundException ex) {
+			return null;	//caso o arquivo nao exista retorna nulo;
+		}
+		
+		ArrayList<Estoque> estoque = new ArrayList<Estoque>();
+		String linhaLida;
+		String[] valoresLidos = new String[2];
+		
+		try {
+			while ((linhaLida = leitor.readLine()) != null)
+			{
+				valoresLidos = linhaLida.split(",");
+				estoque.add(new Estoque(new Produto(valoresLidos[0]),Integer.parseInt(valoresLidos[1])));
+			}
+			
+			leitor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return estoque;
 	}
 	
 	public Boolean cadastrarUsuario(Usuario user) throws IOException{

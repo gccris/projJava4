@@ -34,7 +34,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	
 	public static void main(String[] args) throws IOException {
 	     // inicia o servidor
-		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos,csv", "prodDesejados.csv");
+		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos,csv", "prodDesejados.csv", "vendas.csv");
 	    new Servidor(12345).executa();
    }
 	public Servidor(int porta) {
@@ -96,19 +96,24 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	public ArrayList<Produto> getListProdutos() {
 		return listProdutos;
 	}
+	
 	public void setListProdutos(ArrayList<Produto> listProdutos) {
 		this.listProdutos = listProdutos;
 	}
+	
 	public ArrayList<ProdDesejados> loadProdDesejados(String idCliente) {
 		return GerenciaSupermecado.loadProdDesejados(idCliente,listProdDesejados);
 	}
+	
 	public void removeProdDesejado(String idCliente, String nomeProduto) {
 		ProdDesejados pRemover = new ProdDesejados(idCliente, nomeProduto);
 		GerenciaSupermecado.removeProdDesejado(pRemover,listProdDesejados);
 	}
-	public String compraProduto(String nomeProduto,int quantidade) throws IOException {
-		return GerenciaSupermecado.compraProduto(nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
+	
+	public String compraProduto(String nomeUsuario, String nomeProduto,int quantidade) throws IOException {
+		return GerenciaSupermecado.compraProduto(nomeUsuario,nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
 	}
+	
 	public void requisitarNotificacao(String idCliente, String nomeProduto) throws IOException {
 		GerenciaSupermecado.requisitarNotificacao(idCliente,nomeProduto,listProdDesejados);
 		manipulacaoArquivos.adicionaDesejo(new ProdDesejados(idCliente, nomeProduto));
@@ -118,5 +123,9 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 		Produto p = new Produto(nome,preco,validade,fornecedor,quantidade);
 		listProdutos.add(p);
 		manipulacaoArquivos.adicionaProduto(p);
+	}
+	
+	public void gerarRelatorio(int mes){
+		//TODO gera relatorio com as vendas de determinado mes
 	}
 }

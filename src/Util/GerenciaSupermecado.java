@@ -38,12 +38,14 @@ public class GerenciaSupermecado {
 		listProdDesejados.remove(pRemover);
 	}
 
-	public static String compraProduto(String nomeProduto,int quantidade,ArrayList<Produto> listProdutos,ManipulaCSV manipulacaoArq) throws IOException {
+	public static String compraProduto(String nomeUsuario,String nomeProduto,int quantidade,
+									   ArrayList<Produto> listProdutos,ManipulaCSV manipulacaoArq) throws IOException {
 		for(Produto p: listProdutos){
 			if(p.getNome().compareTo(nomeProduto)==0){
 				if(p.getQuantidade()>=quantidade){
 					p.setQuantidade(p.getQuantidade()-quantidade);
 					manipulacaoArq.atualizaEstoque(listProdutos);
+					manipulacaoArq.registraVenda(nomeProduto,nomeUsuario,quantidade);
 					return "Compra efetuada com sucesso";
 				}
 				else

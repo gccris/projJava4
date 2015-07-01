@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 
 import Model.*;
 
@@ -14,15 +15,23 @@ public class ManipulaCSV {
 	private String arquivoUsuario;
 	private String arquivoProdDesejado;
 	private String arquivoProduto;
+	private String arquivoVendas;
 	
-	
-	public ManipulaCSV(String arqUser,String arqProduto, String arqProdDesejado){
+	public ManipulaCSV(String arqUser,String arqProduto, String arqProdDesejado,String arquivoVendas){
 		this.setArquivoUsuario(arqUser);
 		this.setArquivoProduto(arqProduto);
 		this.setArquivoProdDesejado(arqProdDesejado);
+		this.setArquivoVendas(arquivoVendas);
+	}
+	
+	public String getArquivoVendas() {
+		return arquivoVendas;
 	}
 
-
+	public void setArquivoVendas(String arquivoVendas) {
+		this.arquivoVendas = arquivoVendas;
+	}
+	
 	public String getArquivoUsuario() {
 		return arquivoUsuario;
 	}
@@ -147,6 +156,23 @@ public class ManipulaCSV {
 		
 		escritor.close();
 		return true;
+	}
+	
+	public void registraVenda(String nomeUsuario,String nomeProduto, int quantidade) throws IOException{
+		PrintWriter escritor;
+		File arquivo;
+		Date d = new Date();
+		String dataFormat = d.getDate() + "/" + d.getMonth() + "/" + d.getYear();
+		
+		arquivo = new File(arquivoVendas);
+		if(!arquivo.exists()){
+			arquivo.createNewFile();
+		}
+		
+		escritor = new PrintWriter(arquivo);
+		escritor.append(nomeUsuario + "," + nomeProduto + "," + quantidade + ","+dataFormat); 
+		
+		escritor.close();
 	}
 
 

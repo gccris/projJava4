@@ -44,6 +44,7 @@ public class TrataCliente implements Runnable {
 					
 					try {
 						outCliente.writeBoolean(servidor.Login(parts[1], parts[2]));
+						outCliente.flush();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -72,7 +73,7 @@ public class TrataCliente implements Runnable {
 				}
 				if(parts[0].compareTo("5") == 0){//COMPRAR PRODUTO
 					try {
-						outCliente.writeObject(servidor.compraProduto(parts[1],Integer.parseInt(parts[2])));
+						outCliente.writeObject(servidor.compraProduto(parts[0],parts[1],Integer.parseInt(parts[2])));
 					} catch (NumberFormatException e) {
 						e.printStackTrace();
 					} catch (IOException e) {

@@ -58,6 +58,7 @@ public class TrataCliente implements Runnable {
 				if(parts[0].compareTo("2") == 0){//RECUPERA LISTA DE PRODUTOS
 						try {
 							outCliente.writeObject(servidor.getListProdutos());
+							servidor.atualizaTabelaProduto();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -84,6 +85,7 @@ public class TrataCliente implements Runnable {
 					servidor.requisitarNotificacao(parts[1],parts[2]);
 				}
 				try {
+					outCliente.reset();
 					outCliente.flush();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

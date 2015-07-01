@@ -1,6 +1,9 @@
 package Model;
 
-public class ProdDesejados {
+import java.io.Serializable;
+
+public class ProdDesejados implements Serializable {
+
 	private String idUsuario;
 	private String nomeProduto;  //
 	
@@ -25,8 +28,9 @@ public class ProdDesejados {
 		this.idUsuario = idUsuario;
 	}
 	
-	public boolean equals(ProdDesejados obj){
-		if(obj.getIdUsuario().compareTo(this.getIdUsuario()) == 0 && obj.getNomeProduto().compareTo(this.getNomeProduto()) == 0)
+	public boolean equals(Object obj){
+		ProdDesejados pd = (ProdDesejados) obj;
+		if(pd.getIdUsuario().compareTo(this.getIdUsuario()) == 0 && pd.getNomeProduto().compareTo(this.getNomeProduto()) == 0)
 			return true;
 		return false;
 	}

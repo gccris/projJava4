@@ -11,6 +11,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -44,6 +46,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	Scene cadScene, prodScene;
 	ArrayList<Produto> cartListProd = new ArrayList<>();
 	ObservableList<Produto> cartList;
+	ObservableList<Produto> prodList = FXCollections.observableArrayList();
 	
 	public ArrayList<ProdDesejados> getListProdDesejados() {
 		return listProdDesejados;
@@ -55,7 +58,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	
 	public static void main(String[] args) throws IOException {
 	     // inicia o servidor
-		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos,csv", "prodDesejados.csv", "vendas.csv");
+		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos.csv", "prodDesejados.csv", "vendas.csv");
 		launch(args);
    }
 
@@ -122,9 +125,10 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		return GerenciaSupermecado.loadProdDesejados(idCliente,listProdDesejados);
 	}
 	
-	public void removeProdDesejado(String idCliente, String nomeProduto) {
+	public void removeProdDesejado(String idCliente, String nomeProduto) throws IOException {
 		ProdDesejados pRemover = new ProdDesejados(idCliente, nomeProduto);
 		GerenciaSupermecado.removeProdDesejado(pRemover,listProdDesejados);
+		manipulacaoArquivos.adicionaListaDesejos(listProdDesejados);//refaz o arquivo de desejos
 	}
 	
 	public String compraProduto(String nomeUsuario, String nomeProduto,int quantidade) throws IOException {
@@ -136,10 +140,15 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		manipulacaoArquivos.adicionaDesejo(new ProdDesejados(idCliente, nomeProduto));
 	}
 	
-	public void cadastraNovoProduto(String nome,String preco,String validade,String fornecedor, int quantidade) throws IOException{
+	public void cadastraNovoProduto(String nome,String preco,String validade,String fornecedor, int quantidade){
 		Produto p = new Produto(nome,preco,validade,fornecedor,quantidade);
 		listProdutos.add(p);
-		manipulacaoArquivos.adicionaProduto(p);
+		try {
+			manipulacaoArquivos.adicionaProduto(p);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void gerarRelatorio(int mes){
@@ -148,6 +157,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	
 	public void start(Stage primaryStage) throws Exception{
 		executa();
+		atualizaTabelaProduto();
 		window = primaryStage;
 		
 		//	PRODUTOS	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -156,8 +166,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		prodBar.setStyle("-fx-background-color: #336699;");
 		prodBar.setAlignment(Pos.CENTER_RIGHT);
 		
-		
-		ObservableList<Produto> prodList = FXCollections.observableList(listProdutos);
+		 
 		TableView<Produto> prodTable = new TableView<>();
 		TableColumn tcProdName = new TableColumn("PRODUTO");
 		tcProdName.setMinWidth(300);
@@ -178,11 +187,10 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		prodTable.setItems(prodList);
 		
 		Button prodAtt = new Button("ATUALIZAR");
-		Button prodDel = new Button("REMOVER");
+		prodAtt.setDisable(true);
 		TextField prodAttVal = new TextField();
 		prodAttVal.setPromptText("Qtde");
 		
-		Produto prod;
 		Label prodInfoText = new Label("INFORMAÇÕES DO PRODUTO");
 		Label prodInfoName = new Label("Produto:");
 		Label prodInfoForn = new Label("Fornecedor:");
@@ -195,17 +203,15 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 				prodInfoForn.setText("Fornecedor: " + newValue.getFornecedor());
 				prodInfoValid.setText("Validade: " + newValue.getValidade());
 				prodInfoValue.setText("Valor: R$" + newValue.getPreço());
+				prodAtt.setDisable(false);
 				prodAtt.setOnAction(e -> {
-					// SETA prodAttVal NA quantidade DO PRODUTO (ESTOQUE)
-				});
-				prodDel.setOnAction(e->{
-					// REMOVE PRODUTO DO ESTOQUE
+					atualizaEstoque(newValue,prodAttVal.getText());
 				});
 			}
 		});
 		
 		VBox prodInfo = new VBox(7);
-		prodInfo.getChildren().addAll(prodInfoText, prodInfoName, prodInfoForn, prodInfoValid, prodInfoValue, prodDel, prodAttVal, prodAtt);
+		prodInfo.getChildren().addAll(prodInfoText, prodInfoName, prodInfoForn, prodInfoValid, prodInfoValue, prodAttVal, prodAtt);
 		
 		HBox prodAll = new HBox(7);
 		prodAll.getChildren().addAll(prodTable, prodInfo);
@@ -263,7 +269,10 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		});
 		
 		cadOK.setOnAction(e->{
-			// CADASTRA PRODUTO
+			this.cadastraNovoProduto(cadNameTF.getText(),cadValueTF.getText() ,cadValidTF.getText(), cadFornTF.getText(), 0);
+			atualizaTabelaProduto();
+			window.setScene(prodScene);
+			JOptionPane.showMessageDialog(null, "Produto: "+cadNameTF.getText()+" cadastrado");
 		});
 		cadCancel.setOnAction(e->{
 			window.setScene(prodScene);
@@ -278,5 +287,21 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		window.setScene(prodScene);
 		window.setTitle("SUPERMERCADO DOS PARÇA");
 		window.show();
+	}
+	
+	private void atualizaEstoque(Produto p, String quantidade) {
+		p.setQuantidade(Integer.parseInt(quantidade));
+		try {
+			manipulacaoArquivos.atualizaEstoque(listProdutos);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		atualizaTabelaProduto();
+	}
+	public void atualizaTabelaProduto(){
+		prodList.clear();
+		for(Produto p:listProdutos)
+			prodList.add(p);
 	}
 }

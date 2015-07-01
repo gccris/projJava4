@@ -5,6 +5,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JOptionPane;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -18,6 +22,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -45,7 +50,8 @@ public class Cliente extends Application{
 	private String idCliente;
 	Stage window;
 	Scene loginScene, cadScene, prodScene, cartScene;
-	ObservableList<Produto> cartList;
+	ObservableList<ProdDesejados> cartList = FXCollections.observableArrayList();
+	ObservableList<Produto> prodList = FXCollections.observableArrayList();
 	
 	public static void main(String[] args) throws UnknownHostException, IOException{
 	     // dispara cliente
@@ -54,32 +60,35 @@ public class Cliente extends Application{
 	
 	private void executa() throws UnknownHostException, IOException {
 		this.porta = 12345;
-		this.listProdutos = null;
+		this.listProdutos = new ArrayList<Produto>();
+		this.listProdDesejados = new ArrayList<ProdDesejados>();
 		Socket cSocket = new Socket(InetAddress.getLocalHost(), this.porta);
 		this.input = new ObjectInputStream(cSocket.getInputStream());
 		this.output = new ObjectOutputStream(cSocket.getOutputStream());	
 	}
 
-	public void login(String login,String senha) throws IOException{
+	public Boolean login(String login,String senha) throws IOException{
 		this.output.writeObject(new String("0,"+login+","+senha));  //avisa e manda os parametros para pesquisa para o servidor
 		this.output.flush();
 		
 		if (this.input.readBoolean()){//recebe a resposta do servidor
 			this.idCliente = login;
+			return true;
 		}
-			//TODO avisa que logou
+			return false;
 	}
 	
 	public void criaUsuario(String id, String senha,String nome,String endereco,String telefone,String email) throws IOException{
 		this.output.writeObject(new String("1,"+id+","+senha+","+nome+","+endereco+","+telefone+","+email));
 		this.output.flush();
-		if (this.input.readBoolean()){//recebe a resposta do servidor
-			//TODO avisa usuario que já existe id
-		}
+		if (!this.input.readBoolean())//recebe a resposta do servidor
+			JOptionPane.showMessageDialog(null, "Usuario ja existe");
+		else
+			JOptionPane.showMessageDialog(null, "Usuario cadastrado");
 	}
 	
 	public void loadListProdutos() throws IOException{
-			this.output.writeChars("2");
+			this.output.writeObject(new String("2"));
 			this.output.flush();
 			try {
 				listProdutos = (ArrayList<Produto>) this.input.readObject();
@@ -90,33 +99,51 @@ public class Cliente extends Application{
 	}
 	
 	public void requisitarNotificacao(Produto p) throws IOException{
-		this.output.writeChars("6,"+idCliente+","+p.getNome());
+		this.output.writeObject(new String("6,"+idCliente+","+p.getNome()));
 		this.output.flush();
 	}
 	
 	public void loadListProdDesejados() throws IOException{
-		this.output.writeChars("3,"+idCliente);
+		this.output.writeObject(new String("3,"+idCliente));
 		this.output.flush();
 		try {
 			listProdDesejados = (ArrayList<ProdDesejados>) this.input.readObject();
-			for(ProdDesejados lp:listProdDesejados){
-				for(Produto p:listProdutos){
-					if(p.getNome().compareTo(lp.getNomeProduto()) == 0){
-						//TODO ALERT;
-						this.output.writeChars("4,"+idCliente+","+lp.getNomeProduto());//remove o produto desejado da lista do cliente no servidor
-						this.output.flush();
-					}
-				}
-			}
+			verificaListaProdDesejados();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
 	}
+	public void verificaListaProdDesejados(){
+		for(ProdDesejados lp:listProdDesejados){
+			for(Produto p:listProdutos){
+				if(p.getNome().compareTo(lp.getNomeProduto()) == 0){
+					if(p.getQuantidade()>0){
+						JOptionPane.showMessageDialog(null, "Produto: "+lp.getNomeProduto()+" disponivel!");
+						try {
+							this.output.writeObject(new String("4,"+idCliente+","+lp.getNomeProduto()));//remove o produto desejado da lista do cliente no servidor
+							this.output.flush();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
 	
-	public void compraProduto(Produto p) throws IOException{
-		this.output.writeChars("5,"+p.getNome());
+	public void compraProduto(Produto p,String quantidade) throws IOException{
+		this.output.writeObject(new String("5,"+p.getNome()+","+quantidade));
 		this.output.flush();
+		String retorno;
+		try {
+			retorno = (String) this.input.readObject();
+			JOptionPane.showMessageDialog(null, retorno);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -206,12 +233,13 @@ public class Cliente extends Application{
 		imgBtn.setFitWidth(20);
 		imgBtn.setPreserveRatio(true);
 		prodCart.setGraphic(imgBtn);
+		prodCart.setTooltip(new Tooltip("Produtos desejados"));
 		HBox prodBar = new HBox(7);
 		prodBar.getChildren().addAll(prodLogged, prodCart);
 		prodBar.setStyle("-fx-background-color: #336699;");
 		prodBar.setAlignment(Pos.BASELINE_RIGHT);
 		
-		ObservableList<Produto> prodList = FXCollections.observableList(listProdutos);
+		
 		TableView<Produto> prodTable = new TableView<>();
 		TableColumn tcProdName = new TableColumn("PRODUTO");
 		tcProdName.setMinWidth(300);
@@ -232,12 +260,16 @@ public class Cliente extends Application{
 		prodTable.setItems(prodList);
 		
 		Button prodBuy = new Button("COMPRAR");
+		prodBuy.setDisable(true);
+		Button prodReserva = new Button("RESERVAR");
+		prodReserva.setDisable(true);
 		
 		Label prodInfoText = new Label("INFORMAÇÕES DO PRODUTO");
 		Label prodInfoName = new Label("Produto:");
 		Label prodInfoForn = new Label("Fornecedor:");
 		Label prodInfoValid = new Label("Validade:");
-		Label prodInfoValue = new Label("Valor");
+		Label prodInfoValue = new Label("Valor:");
+		Label prodInfoQuantidade = new Label("Quantidade:");
 		TextField prodQtd = new TextField();
 		prodQtd.setPromptText("Qtde");
 		prodTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -247,17 +279,41 @@ public class Cliente extends Application{
 				prodInfoForn.setText("Fornecedor: " + newValue.getFornecedor());
 				prodInfoValid.setText("Validade: " + newValue.getValidade());
 				prodInfoValue.setText("Valor: R$" + newValue.getPreço());
+				prodInfoQuantidade.setText("Quantidade: " + newValue.getQuantidade());
+				prodBuy.setDisable(false);
+				if(newValue.getQuantidade()==0)
+					prodReserva.setDisable(false);
+				else
+					prodReserva.setDisable(true);
 				prodBuy.setOnAction(e -> {
-					//IF 0 < QTD <= MAX
-					//cartList.add(newValue);
-					//TODO COMPRA
-					window.setScene(cartScene);
+					try {
+						compraProduto(newValue,prodQtd.getText());
+						loadListProdutos();
+						loadListProdDesejados();
+						atualizaTabelaDesejos();
+						atualizaTabelaProduto();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				});
+				prodReserva.setOnAction(e -> {
+					try {
+						requisitarNotificacao(newValue);
+						loadListProdutos();
+						loadListProdDesejados();
+						atualizaTabelaProduto();
+						atualizaTabelaDesejos();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				});
 			}
 		});
 		
 		VBox prodInfo = new VBox(7);
-		prodInfo.getChildren().addAll(prodInfoText, prodInfoName, prodInfoForn, prodInfoValid, prodInfoValue, prodQtd, prodBuy);
+		prodInfo.getChildren().addAll(prodInfoText, prodInfoName, prodInfoForn, prodInfoValid, prodInfoValue,prodInfoQuantidade, prodQtd, prodBuy,prodReserva);
 		
 		HBox prodAll = new HBox(7);
 		prodAll.getChildren().addAll(prodTable, prodInfo);
@@ -286,45 +342,70 @@ public class Cliente extends Application{
 		cartBar.setStyle("-fx-background-color: #336699;");
 		cartBar.setAlignment(Pos.CENTER_RIGHT);
 		
-		cartList = FXCollections.observableList(cartListProd);
-		TableView<Produto> cartTable = new TableView<>();
+		TableView<ProdDesejados> cartTable = new TableView<>();
 		TableColumn tcCartName = new TableColumn("PRODUTO");
-		tcCartName.setMinWidth(300);
-		tcCartName.setMaxWidth(300);
+		tcCartName.setMinWidth(400);
 		tcCartName.setCellValueFactory(
-				new PropertyValueFactory<>("produto.nome"));
-		TableColumn tcCartQtd = new TableColumn("QTD");
-		tcCartQtd.setMinWidth(100);
-		tcCartQtd.setMaxWidth(100);
-		tcCartQtd.setCellValueFactory(
-				new PropertyValueFactory<>("quantidade"));
-		cartTable.getColumns().addAll(tcCartName, tcCartQtd);
+				new PropertyValueFactory<>("nomeProduto"));
+		cartTable.getColumns().addAll(tcCartName);
 		cartTable.setMaxWidth(400);
 		cartTable.setItems(cartList);
 		
-		Button cartDel = new Button("REMOVER");
-		Button cartBuy = new Button("FINALIZAR");
+
 		Button cartBack = new Button("VOLTAR");
 		HBox cartButtons = new HBox(7);
-		cartButtons.getChildren().addAll(cartBack, cartBuy);
+		cartButtons.getChildren().addAll(cartBack);
 		cartButtons.setAlignment(Pos.CENTER);
 		
 		VBox layoutCart = new VBox(15);
-		layoutCart.getChildren().addAll(cartBar, cartTable, cartDel, cartButtons);
+		layoutCart.getChildren().addAll(cartBar, cartTable, cartButtons);
 		layoutCart.setAlignment(Pos.TOP_CENTER);
 		
 		//	BUTTONS		XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		loginOK.setOnAction(e -> {
-			// IF LOGADO ENTÃO...
-			prodLogged.setText("Logado como: " + loginUserTF.getText());
-			window.setScene(prodScene);
+			try {
+				if(login(loginUserTF.getText(), loginPassTF.getText())){
+					prodLogged.setText("Logado como: " + loginUserTF.getText());
+					loadListProdutos();
+					loadListProdDesejados();
+					atualizaTabelaProduto();
+					atualizaTabelaDesejos();
+					Timer timer = new Timer();
+					timer.schedule(new TimerTask() {
+						  public void run() {
+							  try {
+								loadListProdutos();
+								atualizaTabelaProduto();
+								loadListProdDesejados();
+								atualizaTabelaDesejos();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							  
+						  }
+					}, 30*1000,30*1000);
+					window.setScene(prodScene);
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Usuario/senha incorreto");
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
 		});
 		loginCad.setOnAction(e -> {
 			window.setScene(cadScene);
 		});
 		
 		cadOK.setOnAction(e ->{
-			// CADASTRA USUARIO
+			try {
+				criaUsuario(cadUserTF.getText(), cadPassTF.getText(), cadNameTF.getText(), cadAddressTF.getText(), cadPassTF.getText(), cadEmailTF.getText());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		cadCancel.setOnAction(e -> {
 			window.setScene(loginScene);
@@ -343,12 +424,6 @@ public class Cliente extends Application{
 			window.setScene(cartScene);
 		});
 		
-		cartBuy.setOnAction(e-> {
-			// VERIFICA COM SERVIDOR SE AINDA ESTAO DISPONIVEIS E FINALIZA COMPRA
-		});
-		cartDel.setOnAction(e-> {
-			// REMOVE ITEM NA LISTA DO CARRINHO
-		});
 		cartBack.setOnAction(e -> {
 			window.setScene(prodScene);
 		});
@@ -364,6 +439,18 @@ public class Cliente extends Application{
 		window.setScene(loginScene);
 		window.setTitle("SUPERMERCADO DOS PARÇA");
 		window.show();
+	}
+	
+	void atualizaTabelaProduto(){
+		prodList.clear();
+		for(Produto p:listProdutos)
+			prodList.add(p);
+	}
+	void atualizaTabelaDesejos(){
+		cartList.clear();
+		for(ProdDesejados pd:listProdDesejados){
+			cartList.add(pd);
+		}
 	}
 }
 

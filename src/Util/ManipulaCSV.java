@@ -267,5 +267,22 @@ public class ManipulaCSV {
 		
 		escritor.close();
 	}
+
+	public void adicionaListaDesejos(ArrayList<ProdDesejados> listProdDesejados) throws IOException {
+		PrintStream escritor;
+		File arquivo;
+
+		arquivo = new File(arquivoProdDesejado);
+		if(!arquivo.exists()){
+			arquivo.createNewFile();
+		}
+		
+		escritor = new PrintStream(arquivo);
+		for(ProdDesejados p:listProdDesejados) 
+			escritor.println(p.getIdUsuario()+","+p.getNomeProduto());
+		
+		escritor.close();
+		
+	}
 	
 }

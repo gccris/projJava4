@@ -79,6 +79,9 @@ public class TrataCliente implements Runnable {
 						e.printStackTrace();
 					}
 				}
+				if(parts[0].compareTo("6") == 0){//COLOCAR PRODUTO COMO DESEJADO PARA CLIENTE
+					servidor.requisitarNotificacao(parts[1],parts[2]);
+				}
 				try {
 					outCliente.flush();
 				} catch (IOException e) {

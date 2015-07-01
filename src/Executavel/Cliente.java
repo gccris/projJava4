@@ -71,6 +71,11 @@ public class Cliente{
 	
 	}
 	
+	public void requisitarNotificacao(Produto p) throws IOException{
+		this.output.writeChars("6,"+idCliente+","+p.getNome());
+		this.output.flush();
+	}
+	
 	public void loadListProdDesejados() throws IOException{
 		this.output.writeChars("3,"+idCliente);
 		this.output.flush();

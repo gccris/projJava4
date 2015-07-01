@@ -52,4 +52,8 @@ public class GerenciaSupermecado {
 		}
 		return "Compra não efetuada";
 	}
+
+	public static void requisitarNotificacao(String idCliente,String nomeProduto, ArrayList<ProdDesejados> listProdDesejados) {
+		listProdDesejados.add(new ProdDesejados(idCliente, nomeProduto));
+	}
 }

@@ -109,4 +109,14 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	public String compraProduto(String nomeProduto,int quantidade) throws IOException {
 		return GerenciaSupermecado.compraProduto(nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
 	}
+	public void requisitarNotificacao(String idCliente, String nomeProduto) throws IOException {
+		GerenciaSupermecado.requisitarNotificacao(idCliente,nomeProduto,listProdDesejados);
+		manipulacaoArquivos.adicionaDesejo(new ProdDesejados(idCliente, nomeProduto));
+	}
+	
+	public void cadastraNovoProduto(String nome,String preco,String validade,String fornecedor, int quantidade) throws IOException{
+		Produto p = new Produto(nome,preco,validade,fornecedor,quantidade);
+		listProdutos.add(p);
+		manipulacaoArquivos.adicionaProduto(p);
+	}
 }

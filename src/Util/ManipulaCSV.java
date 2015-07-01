@@ -177,4 +177,36 @@ public class ManipulaCSV {
 		escritor.close();
 	}
 	
+	public void adicionaDesejo(ProdDesejados p) throws IOException {
+		PrintWriter escritor;
+		File arquivo;
+
+		arquivo = new File(arquivoProdDesejado);
+		if(!arquivo.exists()){
+			arquivo.createNewFile();
+		}
+		
+		escritor = new PrintWriter(arquivo);
+		escritor.append(p.getIdUsuario()+ "," + p.getNomeProduto()+'\n');
+		
+		escritor.close();
+	}
+
+
+	public void adicionaProduto(Produto p) throws IOException {
+		PrintWriter escritor;
+		File arquivo;
+
+		arquivo = new File(arquivoProduto);
+		if(!arquivo.exists()){
+			arquivo.createNewFile();
+		}
+		
+		escritor = new PrintWriter(arquivo);
+		escritor.append(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
+				+ p.getFornecedor() + "," + p.getQuantidade()+'\n');
+		
+		escritor.close();
+	}
+	
 }

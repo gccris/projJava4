@@ -2,24 +2,45 @@ package Executavel;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.swing.JOptionPane;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import javax.swing.JOptionPane;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
@@ -117,6 +138,73 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		return listProdutos;
 	}
 	
+	public String geraRelatorio(String mes, String dia) throws DocumentException, IOException {
+	  	ArrayList<Venda> vendas = manipulacaoArquivos.loadVendas();
+	  	
+	  	Document doc = null;
+		OutputStream os = null;
+		String nomeArquivo;
+		     
+		try {
+			//cria o documento tamanho A4, margens de 2,54cm
+	
+		    doc = new Document(PageSize.A4, 72, 72, 72, 72);
+		    //cria a stream de saída
+		    nomeArquivo = "RelatorioVendas"+new Date().getTime()+".pdf";
+		    os = new FileOutputStream(nomeArquivo);
+		    //associa a stream de saída ao
+	
+		    PdfWriter.getInstance(doc, os);
+		    //abre o documento
+		
+		    doc.open();
+		    //adiciona o texto ao PDF
+		            
+		    Paragraph header = new Paragraph("Relatorio das vendas realizadas para os parâmetros passados.");
+		    doc.add(header);
+		    int i = 1;
+		    Boolean escreve;
+		    Calendar cal = Calendar.getInstance();
+		            
+		    for(Venda v : vendas){
+		    	escreve = false;
+		        cal.setTime(v.getData());
+		        String mesVenda = Integer.toString(cal.get(Calendar.MONTH) + 1);
+		        String diaVenda = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+		    			
+		        if(mes != null && dia != null) {
+		        	if(mes.equals(mesVenda) && dia.equals(diaVenda)){
+		        		escreve = true;
+		    		}
+		    	} else if(dia == null) {
+		    		if(mes.equals(mesVenda))
+		    			escreve = true;
+		    	} else if (dia.equals(diaVenda))
+		    		escreve = true;
+		    			
+		    	if(escreve){
+		    		doc.add(new Paragraph("Venda "+i+":"));
+			        doc.add(new Paragraph("Produto: "+v.getProduto()));
+			        doc.add(new Paragraph("Cliente: "+v.getNomeUsuario()));
+			        doc.add(new Paragraph("Quantidade: "+v.getQuantidade()));
+			        doc.add(new Paragraph("Data da venda: "+new SimpleDateFormat("dd-MM").format(v.getData()) + '\n' + '\n'));
+			        doc.add(new Paragraph());
+			        i++;
+		    	}
+		    }
+		} finally {
+			if (doc != null) {
+				//fechamento do documento
+		        doc.close();
+		    }
+		    if (os != null) {
+		    	//fechamento da stream de saída
+		        os.close();
+		    }
+		}
+		return nomeArquivo;
+	}
+	
 	public void setListProdutos(ArrayList<Produto> listProdutos) {
 		this.listProdutos = listProdutos;
 	}
@@ -151,14 +239,11 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		}
 	}
 	
-	public void gerarRelatorio(int mes){
-		//TODO gera relatorio com as vendas de determinado mes
-	}
-	
 	public void start(Stage primaryStage) throws Exception{
 		executa();
 		atualizaTabelaProduto();
 		window = primaryStage;
+		window.setWidth(700);
 		
 		//	PRODUTOS	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		HBox prodBar = new HBox(7);
@@ -190,6 +275,49 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		prodAtt.setDisable(true);
 		TextField prodAttVal = new TextField();
 		prodAttVal.setPromptText("Qtde");
+	
+		
+		///GERAÇÃO DE RELATÓRIO
+		HBox[] hbRelatorio = new HBox[3];
+		Label lblMes = new Label("Mês:  ");
+		Label lblDia = new Label("Dia:  ");
+		Button requisita = new Button("GERAR RELATÓRIO");
+		ChoiceBox cbDia = new ChoiceBox(FXCollections.observableArrayList(" ","1","2","3","4","5",
+				"6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21",
+				"22","23","24","25","26","27","28","29","30","31"));
+		ChoiceBox cbMes = new ChoiceBox(FXCollections.observableArrayList(" ","1","2","3","4","5",
+				"6","7","8","9","10","11","12"));
+		hbRelatorio[0] = new HBox();
+		hbRelatorio[0].getChildren().addAll(lblMes,cbMes);
+		hbRelatorio[1] = new HBox();
+		hbRelatorio[1].getChildren().addAll(lblDia,cbDia);
+		hbRelatorio[2] = new HBox();
+		hbRelatorio[2].getChildren().add(requisita);
+		
+		requisita.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				String dia = (String) cbDia.getValue();
+				String mes = (String) cbMes.getValue();
+				
+				if(dia == " ") dia = null;
+				if(mes == " ") mes = null;
+				
+				if(dia == null  && mes == null)
+					JOptionPane.showMessageDialog(null, "Selecione um dos parametros para a geração do relatorio: mês ou dia.");
+				else
+					try {
+						String nomeArq = geraRelatorio(mes, dia);
+						JOptionPane.showMessageDialog(null, "Arquivo de relatorio gerado. Nome do arquivo: "+nomeArq);
+					} catch (DocumentException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}
+		});
+		//////////////////////////////////////////////////
 		
 		Label prodInfoText = new Label("INFORMAÇÕES DO PRODUTO");
 		Label prodInfoName = new Label("Produto:");
@@ -212,6 +340,9 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		
 		VBox prodInfo = new VBox(7);
 		prodInfo.getChildren().addAll(prodInfoText, prodInfoName, prodInfoForn, prodInfoValid, prodInfoValue, prodAttVal, prodAtt);
+		
+		//adiciona componentes da geracao de relatorio
+		prodInfo.getChildren().addAll(new Label("GERAÇÃO DE RELATORIOS"),hbRelatorio[0],hbRelatorio[1],hbRelatorio[2]);
 		
 		HBox prodAll = new HBox(7);
 		prodAll.getChildren().addAll(prodTable, prodInfo);

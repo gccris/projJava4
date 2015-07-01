@@ -31,11 +31,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import org.omg.CORBA.portable.ApplicationException;
-import org.omg.CORBA.portable.OutputStream;
-
-import com.sun.jmx.snmp.InetAddressAcl;
-
 import Model.ProdDesejados;
 import Model.Produto;
 

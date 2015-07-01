@@ -165,7 +165,7 @@ public class ManipulaCSV {
 		PrintStream escritor;
 		File arquivo;
 		Date d = new Date();
-		String dataFormat = d.getDate() + "/" + d.getMonth() + "/" + d.getYear();
+		String dataFormat = d.getMonth() + "/" + d.getDate() + "/" + d.getYear();
 		
 		arquivo = new File(arquivoVendas);
 		if(!arquivo.exists()){
@@ -181,7 +181,7 @@ public class ManipulaCSV {
 	
 	public ArrayList<Venda> loadVendas() {
 		BufferedReader leitor;
-		
+		Date dataLida;
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoVendas()));
 		} catch(FileNotFoundException ex) {
@@ -196,8 +196,9 @@ public class ManipulaCSV {
 			while ((linhaLida = leitor.readLine()) != null)
 			{
 				valoresLidos = linhaLida.split(",");
+				dataLida = new Date(valoresLidos[3]);
 				vendas.add(new Venda(valoresLidos[0],valoresLidos[1],
-									Integer.parseInt(valoresLidos[2]),new Date(valoresLidos[3])));
+									Integer.parseInt(valoresLidos[2]),dataLida));
 			}
 			
 			leitor.close();

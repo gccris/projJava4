@@ -62,7 +62,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 			       
 				       // cria tratador de cliente numa nova thread
 				        TrataCliente tc = 										//abre uma thread para receber as informações do cliente
-				           new TrataCliente(new DataInputStream(cliente.getInputStream()), new ObjectOutputStream(cliente.getOutputStream()), this);
+				           new TrataCliente(cliente.getInputStream(),cliente.getOutputStream(), this);
 				        new Thread(tc).start();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -106,17 +106,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 		ProdDesejados pRemover = new ProdDesejados(idCliente, nomeProduto);
 		GerenciaSupermecado.removeProdDesejado(pRemover,listProdDesejados);
 	}
-	public String compraProduto(String nomeProduto,int quantidade) {
+	public String compraProduto(String nomeProduto,int quantidade) throws IOException {
 		return GerenciaSupermecado.compraProduto(nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
-	}
-	public void atualizaEstoque(Produto p,int quantidade){
-		p.setQuantidade(quantidade);
-		try {
-			manipulacaoArquivos.atualizaEstoque(listProdutos);
-			GerenciaSupermecado.mandaEmailClientes(p,listProdDesejados,listUsuarios);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

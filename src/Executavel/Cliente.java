@@ -34,12 +34,18 @@ public class Cliente{
 		Socket cSocket = new Socket(this.host, this.porta);
 		this.input = new ObjectInputStream(cSocket.getInputStream());
 		this.output = new ObjectOutputStream(cSocket.getOutputStream());
+		
+		//this.output.writeObject("header");
+		//this.output.flush();
 		//chama parte visual
+		
+		login("gustavo","gustavo");
 	}
 
 	public void login(String login,String senha) throws IOException{
 		this.output.writeObject(new String("0,"+login+","+senha));  //avisa e manda os parametros para pesquisa para o servidor
 		this.output.flush();
+		
 		if (this.input.readBoolean()){//recebe a resposta do servidor
 			this.idCliente = login;
 		}
@@ -62,7 +68,7 @@ public class Cliente{
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			loadListProdDesejados();
+	
 	}
 	
 	public void loadListProdDesejados() throws IOException{
@@ -88,19 +94,7 @@ public class Cliente{
 	public void compraProduto(Produto p) throws IOException{
 		this.output.writeChars("5,"+p.getNome());
 		this.output.flush();
-		try {
-			String resultado = (String) this.input.readObject();
-			if(resultado.compareTo("Não há produto suficiente no estoque")==0){
-				loadListProdutos();
-				//TODO ALERT
-			}
-			else if(resultado.compareTo("Compra efetuada com sucesso")==0){
-				//TODO ALERT COMPRA EFEITUADA
-			}
-			else{}//TODO ALERTA ERRO COMPRA
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		
 	}
 
 

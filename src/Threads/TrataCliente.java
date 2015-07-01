@@ -1,5 +1,7 @@
 package Threads;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
@@ -10,11 +12,11 @@ import Executavel.Servidor;
 
 public class TrataCliente implements Runnable {
 	
-	private InputStream inCliente;
+	private DataInputStream inCliente;
 	private Servidor servidor;
-	private OutputStream outCliente;
+	private DataOutputStream outCliente;
 	
-	public TrataCliente(InputStream inCliente,OutputStream outCliente, Servidor servidor) {
+	public TrataCliente(DataInputStream inCliente,DataOutputStream outCliente, Servidor servidor) {
 		this.inCliente = inCliente;
 		this.outCliente = outCliente;
 		this.servidor = servidor;
@@ -29,11 +31,17 @@ public class TrataCliente implements Runnable {
 		while (s.hasNextLine()) {
 			String[] parts = s.nextLine().split(",");
 			if(parts[0].compareTo("0") == 0){ //LOGIN
-				outCliente.write_boolean(servidor.Login(parts[1], parts[2]));
+				
+				try {
+					outCliente.writeBoolean(servidor.Login(parts[1], parts[2]));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
 			}
 			if(parts[0].compareTo("1") == 0){//CADASTRO NOVO USUARIO
 				try {
-					outCliente.write_boolean(servidor.criaUsuario(parts[1],parts[2],parts[3],parts[4],parts[5],parts[6]));
+					outCliente.writeBoolean(servidor.criaUsuario(parts[1],parts[2],parts[3],parts[4],parts[5],parts[6]));
 				} catch (IOException e) {e.printStackTrace();}
 			}
 			if(parts[0].compareTo("2") == 0){//CADASTRO NOVO USUARIO

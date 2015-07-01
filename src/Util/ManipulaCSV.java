@@ -60,7 +60,7 @@ public class ManipulaCSV {
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoUsuario()));
 		} catch(FileNotFoundException ex) {
-			return null;	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<Usuario>();	//caso o arquivo nao exista retorna nulo;
 		}
 		
 		ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
@@ -89,7 +89,7 @@ public class ManipulaCSV {
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoProduto()));
 		} catch(FileNotFoundException ex) {
-			return null;	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<Produto>();	//caso o arquivo nao exista retorna nulo;
 		}
 		
 		ArrayList<Produto> produtos = new ArrayList<Produto>();
@@ -118,7 +118,7 @@ public class ManipulaCSV {
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoProdDesejado()));
 		} catch(FileNotFoundException ex) {
-			return null;	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<ProdDesejados>();	//caso o arquivo nao exista retorna nulo;
 		}
 		
 		ArrayList<ProdDesejados> estoque = new ArrayList<ProdDesejados>();

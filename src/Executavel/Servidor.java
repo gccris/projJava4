@@ -10,8 +10,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.CORBA.portable.OutputStream;
-
 import Model.*;
 import Threads.TrataCliente;
 import Util.GerenciaSupermecado;
@@ -24,7 +22,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	private List<PrintStream> clientes;
 	private ArrayList<Usuario> listUsuarios;
 	private ArrayList<Produto> listProdutos;
-	private ArrayList<Estoque> listEstoque;
+	private ArrayList<ProdDesejados> listProdDesejados;
 	private static ManipulaCSV manipulacaoArquivos;
 	
 	public static void main(String[] args) throws IOException {
@@ -37,7 +35,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	    this.clientes = new ArrayList<PrintStream>();
 	    this.listUsuarios = manipulacaoArquivos.loadUsuarios();
 	    this.setListProdutos(manipulacaoArquivos.loadProdutos());
-	    this.listEstoque = manipulacaoArquivos.loadEstoque();
+	    this.listProdDesejados = manipulacaoArquivos.loadProdDesejado();
 	    //TODO carregar lists
 	}
 	
@@ -93,5 +91,8 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	}
 	public void setListProdutos(ArrayList<Produto> listProdutos) {
 		this.listProdutos = listProdutos;
+	}
+	public ArrayList<ProdDesejados> loadProdDesejados(String idCliente) {
+		return GerenciaSupermecado.loadProdDesejados(idCliente,listProdDesejados);
 	}
 }

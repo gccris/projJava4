@@ -21,4 +21,13 @@ public class GerenciaSupermecado {
 		}
 		return false;
 	}
+
+	public static ArrayList<ProdDesejados> loadProdDesejados(String idCliente,ArrayList<ProdDesejados> listProdDesejados) {
+		ArrayList<ProdDesejados> produtosDesejados = new ArrayList<ProdDesejados>();
+		for(ProdDesejados p: listProdDesejados){
+			if(p.getIdUsuario().compareTo(idCliente) == 0)
+				produtosDesejados.add(p);
+		}
+		return produtosDesejados;
+	}
 }

@@ -12,14 +12,14 @@ import Model.*;
 
 public class ManipulaCSV {
 	private String arquivoUsuario;
-	private String arquivoEstoque;
+	private String arquivoProdDesejado;
 	private String arquivoProduto;
 	
 	
-	public ManipulaCSV(String arqUser,String arqProduto, String arqEstoque){
+	public ManipulaCSV(String arqUser,String arqProduto, String arqProdDesejado){
 		this.setArquivoUsuario(arqUser);
 		this.setArquivoProduto(arqProduto);
-		this.setArquivoEstoque(arqEstoque);
+		this.setArquivoProdDesejado(arqProdDesejado);
 	}
 
 
@@ -30,16 +30,6 @@ public class ManipulaCSV {
 
 	public void setArquivoUsuario(String arquivoUsuario) {
 		this.arquivoUsuario = arquivoUsuario;
-	}
-
-
-	public String getArquivoEstoque() {
-		return arquivoEstoque;
-	}
-
-
-	public void setArquivoEstoque(String arquivoEstoque) {
-		this.arquivoEstoque = arquivoEstoque;
 	}
 
 
@@ -99,7 +89,7 @@ public class ManipulaCSV {
 			{
 				valoresLidos = linhaLida.split(",");
 				produtos.add(new Produto(valoresLidos[0],valoresLidos[1],
-										 valoresLidos[2],valoresLidos[3]));
+										 valoresLidos[2],valoresLidos[3],Integer.parseInt(valoresLidos[4])));
 			}
 			
 			leitor.close();
@@ -110,16 +100,16 @@ public class ManipulaCSV {
 		return produtos;
 	}
 	
-	public ArrayList<Estoque> loadEstoque(){
+	public ArrayList<ProdDesejados> loadProdDesejado(){
 		BufferedReader leitor;
 		
 		try {
-			leitor = new BufferedReader(new FileReader(getArquivoEstoque()));
+			leitor = new BufferedReader(new FileReader(getArquivoProdDesejado()));
 		} catch(FileNotFoundException ex) {
 			return null;	//caso o arquivo nao exista retorna nulo;
 		}
 		
-		ArrayList<Estoque> estoque = new ArrayList<Estoque>();
+		ArrayList<ProdDesejados> estoque = new ArrayList<ProdDesejados>();
 		String linhaLida;
 		String[] valoresLidos = new String[2];
 		
@@ -127,7 +117,7 @@ public class ManipulaCSV {
 			while ((linhaLida = leitor.readLine()) != null)
 			{
 				valoresLidos = linhaLida.split(",");
-				estoque.add(new Estoque(new Produto(valoresLidos[0]),Integer.parseInt(valoresLidos[1])));
+				estoque.add(new ProdDesejados(valoresLidos[0],valoresLidos[1]));
 			}
 			
 			leitor.close();
@@ -157,6 +147,16 @@ public class ManipulaCSV {
 		
 		escritor.close();
 		return true;
+	}
+
+
+	public String getArquivoProdDesejado() {
+		return arquivoProdDesejado;
+	}
+
+
+	public void setArquivoProdDesejado(String arquivoProdDesejado) {
+		this.arquivoProdDesejado = arquivoProdDesejado;
 	}
 	
 }

@@ -53,6 +53,11 @@ public class TrataCliente implements Runnable {
 						e.printStackTrace();
 					}
 			}
+			if(parts[0].compareTo("3") == 0){//RECUPERA LISTA DE PROD DESEJADOS
+				try {
+					outCliente.writeObject(servidor.loadProdDesejados(parts[1]));
+				} catch (IOException e) {e.printStackTrace();}
+			}
 			try {
 				outCliente.flush();
 			} catch (IOException e) {

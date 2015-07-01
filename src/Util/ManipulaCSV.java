@@ -158,7 +158,7 @@ public class ManipulaCSV {
 		return true;
 	}
 	
-	public void registraVenda(String nomeUsuario,String nomeProduto, int quantidade) throws IOException{
+	public void registraVenda(String nomeUsuario,Produto produto, int quantidade) throws IOException{
 		PrintWriter escritor;
 		File arquivo;
 		Date d = new Date();
@@ -170,9 +170,38 @@ public class ManipulaCSV {
 		}
 		
 		escritor = new PrintWriter(arquivo);
-		escritor.append(nomeUsuario + "," + nomeProduto + "," + quantidade + ","+dataFormat); 
+		escritor.append(nomeUsuario + "," + produto.getNome() + "," + quantidade + ","+dataFormat); 
 		
 		escritor.close();
+	}
+	
+	public ArrayList<Venda> loadVendas() {
+		BufferedReader leitor;
+		
+		try {
+			leitor = new BufferedReader(new FileReader(getArquivoVendas()));
+		} catch(FileNotFoundException ex) {
+			return null;	//caso o arquivo nao exista retorna nulo;
+		}
+		
+		ArrayList<Venda> vendas = new ArrayList<Venda>();
+		String linhaLida;
+		String[] valoresLidos = new String[4];
+		
+		try {
+			while ((linhaLida = leitor.readLine()) != null)
+			{
+				valoresLidos = linhaLida.split(",");
+				vendas.add(new Venda(valoresLidos[0],valoresLidos[1],
+									Integer.parseInt(valoresLidos[2]),new Date(valoresLidos[3])));
+			}
+			
+			leitor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return vendas;
 	}
 
 
@@ -196,7 +225,7 @@ public class ManipulaCSV {
 		}
 		
 		escritor = new PrintWriter(arquivo);
-		for(Produto p:listProdutos)
+		for(Produto p:listProdutos) 
 			escritor.append(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
 							+ p.getFornecedor() + "," + p.getQuantidade()+'\n');
 		

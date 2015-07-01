@@ -45,7 +45,7 @@ public class GerenciaSupermecado {
 				if(p.getQuantidade()>=quantidade){
 					p.setQuantidade(p.getQuantidade()-quantidade);
 					manipulacaoArq.atualizaEstoque(listProdutos);
-					manipulacaoArq.registraVenda(nomeProduto,nomeUsuario,quantidade);
+					manipulacaoArq.registraVenda(nomeUsuario,p,quantidade);
 					return "Compra efetuada com sucesso";
 				}
 				else

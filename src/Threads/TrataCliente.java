@@ -58,6 +58,18 @@ public class TrataCliente implements Runnable {
 					outCliente.writeObject(servidor.loadProdDesejados(parts[1]));
 				} catch (IOException e) {e.printStackTrace();}
 			}
+			if(parts[0].compareTo("4") == 0){//REMOVER PROD DA LISTA DE PROD DESEJADOS
+					servidor.removeProdDesejado(parts[1],parts[2]);
+			}
+			if(parts[0].compareTo("5") == 0){//COMPRAR PRODUTO
+				try {
+					outCliente.writeObject(servidor.compraProduto(parts[1],Integer.parseInt(parts[2])));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			try {
 				outCliente.flush();
 			} catch (IOException e) {

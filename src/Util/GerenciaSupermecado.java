@@ -30,4 +30,23 @@ public class GerenciaSupermecado {
 		}
 		return produtosDesejados;
 	}
+
+	public static void removeProdDesejado(ProdDesejados pRemover,ArrayList<ProdDesejados> listProdDesejados) {
+		listProdDesejados.remove(pRemover);
+	}
+
+	public static String compraProduto(String nomeProduto,int quantidade,ArrayList<Produto> listProdutos,ManipulaCSV manipulacaoArq) {
+		for(Produto p: listProdutos){
+			if(p.getNome().compareTo(nomeProduto)==0){
+				if(p.getQuantidade()>=quantidade){
+					p.setQuantidade(p.getQuantidade()-quantidade);
+					manipulacaoArq.atualizaEstoque(nomeProduto,p.getQuantidade()-quantidade);
+					return "Compra efetuada com sucesso";
+				}
+				else
+					return "Não há produto suficiente no estoque";
+			}
+		}
+		return "Compra não efetuada";
+	}
 }

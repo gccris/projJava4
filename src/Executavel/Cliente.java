@@ -70,9 +70,24 @@ public class Cliente{
 		this.output.flush();
 		try {
 			listProdDesejados = (ArrayList<ProdDesejados>) this.input.readObject();
+			for(ProdDesejados lp:listProdDesejados){
+				for(Produto p:listProdutos){
+					if(p.getNome().compareTo(lp.getNomeProduto()) == 0){
+						//TODO ALERT;
+						this.output.writeChars("4,"+idCliente+","+lp.getNomeProduto());//remove o produto desejado da lista do cliente no servidor
+						this.output.flush();
+					}
+				}
+			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+	}
+	
+	public void compraProduto(Produto p) throws IOException{
+		this.output.writeChars("5,"+p.getNome());
+		this.output.flush();
 		
 	}
 

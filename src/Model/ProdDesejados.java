@@ -24,4 +24,10 @@ public class ProdDesejados {
 	public void setIdUsuario(String idUsuario) {
 		this.idUsuario = idUsuario;
 	}
+	
+	public boolean equals(ProdDesejados obj){
+		if(obj.getIdUsuario().compareTo(this.getIdUsuario()) == 0 && obj.getNomeProduto().compareTo(this.getNomeProduto()) == 0)
+			return true;
+		return false;
+	}
 }

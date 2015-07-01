@@ -23,11 +23,17 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	private ArrayList<Usuario> listUsuarios;
 	private ArrayList<Produto> listProdutos;
 	private ArrayList<ProdDesejados> listProdDesejados;
+	public ArrayList<ProdDesejados> getListProdDesejados() {
+		return listProdDesejados;
+	}
+	public void setListProdDesejados(ArrayList<ProdDesejados> listProdDesejados) {
+		this.listProdDesejados = listProdDesejados;
+	}
 	private static ManipulaCSV manipulacaoArquivos;
 	
 	public static void main(String[] args) throws IOException {
 	     // inicia o servidor
-		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos,csv", "estoque.csv");
+		manipulacaoArquivos = new ManipulaCSV("usuarios.csv", "produtos,csv", "prodDesejados.csv");
 	    new Servidor(12345).executa();
    }
 	public Servidor(int porta) {
@@ -94,5 +100,12 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	}
 	public ArrayList<ProdDesejados> loadProdDesejados(String idCliente) {
 		return GerenciaSupermecado.loadProdDesejados(idCliente,listProdDesejados);
+	}
+	public void removeProdDesejado(String idCliente, String nomeProduto) {
+		ProdDesejados pRemover = new ProdDesejados(idCliente, nomeProduto);
+		GerenciaSupermecado.removeProdDesejado(pRemover,listProdDesejados);
+	}
+	public String compraProduto(String nomeProduto,int quantidade) {
+		return GerenciaSupermecado.compraProduto(nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
 	}
 }

@@ -158,5 +158,30 @@ public class ManipulaCSV {
 	public void setArquivoProdDesejado(String arquivoProdDesejado) {
 		this.arquivoProdDesejado = arquivoProdDesejado;
 	}
+
+
+	public void atualizaEstoque(String nomeProduto, int quantidade) {
+		BufferedReader leitor;
+		try {
+			leitor = new BufferedReader(new FileReader(getArquivoProduto()));
+		
+		
+		String linhaLida;
+		String[] valoresLidos = new String[6];
+		
+
+			while ((linhaLida = leitor.readLine()) != null)
+			{
+				valoresLidos = linhaLida.split(",");
+				if(valoresLidos[0].compareTo(nomeProduto) == 0){
+				}
+			}
+			
+			leitor.close();
+		}catch(FileNotFoundException ex) {}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}		
 	
 }

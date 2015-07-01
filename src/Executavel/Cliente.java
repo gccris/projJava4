@@ -9,7 +9,7 @@ import org.omg.CORBA.portable.OutputStream;
 public class Cliente{
     private String host;
     private int porta;
-	private DataInputStream input;
+	private ObjectInputStream input;
 	private OutputStream output;
 	
 	public Cliente(String host, int porta) {
@@ -24,7 +24,7 @@ public class Cliente{
 	
 	private void executa() throws UnknownHostException, IOException {
 		Socket cSocket = new Socket(this.host, this.porta);
-		this.input = new DataInputStream(cSocket.getInputStream());
+		this.input = new ObjectInputStream(cSocket.getInputStream());
 		this.output = (OutputStream) cSocket.getOutputStream();
 		
 	}

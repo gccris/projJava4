@@ -1,6 +1,9 @@
 package Executavel;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -33,7 +36,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 		this.porta = porta;
 	    this.clientes = new ArrayList<PrintStream>();
 	    this.listUsuarios = manipulacaoArquivos.loadUsuarios();
-	    this.listProdutos = manipulacaoArquivos.loadProdutos();
+	    this.setListProdutos(manipulacaoArquivos.loadProdutos());
 	    this.listEstoque = manipulacaoArquivos.loadEstoque();
 	    //TODO carregar lists
 	}
@@ -54,7 +57,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 			       
 				       // cria tratador de cliente numa nova thread
 				        TrataCliente tc = 										//abre uma thread para receber as informações do cliente
-				           new TrataCliente(cliente.getInputStream(), (OutputStream) cliente.getOutputStream(), this);
+				           new TrataCliente(new DataInputStream(cliente.getInputStream()), new ObjectOutputStream(cliente.getOutputStream()), this);
 				        new Thread(tc).start();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -84,5 +87,11 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 			return true;
 		}
 			
+	}
+	public ArrayList<Produto> getListProdutos() {
+		return listProdutos;
+	}
+	public void setListProdutos(ArrayList<Produto> listProdutos) {
+		this.listProdutos = listProdutos;
 	}
 }

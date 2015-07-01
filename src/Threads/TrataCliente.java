@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.Scanner;
 
 import org.omg.CORBA.portable.OutputStream;
@@ -14,9 +15,9 @@ public class TrataCliente implements Runnable {
 	
 	private DataInputStream inCliente;
 	private Servidor servidor;
-	private DataOutputStream outCliente;
+	private ObjectOutputStream outCliente;
 	
-	public TrataCliente(DataInputStream inCliente,DataOutputStream outCliente, Servidor servidor) {
+	public TrataCliente(DataInputStream inCliente,ObjectOutputStream outCliente, Servidor servidor) {
 		this.inCliente = inCliente;
 		this.outCliente = outCliente;
 		this.servidor = servidor;
@@ -44,8 +45,13 @@ public class TrataCliente implements Runnable {
 					outCliente.writeBoolean(servidor.criaUsuario(parts[1],parts[2],parts[3],parts[4],parts[5],parts[6]));
 				} catch (IOException e) {e.printStackTrace();}
 			}
-			if(parts[0].compareTo("2") == 0){//CADASTRO NOVO USUARIO
-				
+			if(parts[0].compareTo("2") == 0){//RECUPERA LISTA DE PRODUTOS
+					try {
+						outCliente.writeObject(servidor.getListProdutos());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 			}
 			try {
 				outCliente.flush();

@@ -160,28 +160,21 @@ public class ManipulaCSV {
 	}
 
 
-	public void atualizaEstoque(String nomeProduto, int quantidade) {
-		BufferedReader leitor;
-		try {
-			leitor = new BufferedReader(new FileReader(getArquivoProduto()));
-		
-		
-		String linhaLida;
-		String[] valoresLidos = new String[6];
-		
+	public void atualizaEstoque(ArrayList<Produto> listProdutos) throws IOException {
+		PrintWriter escritor;
+		File arquivo;
 
-			while ((linhaLida = leitor.readLine()) != null)
-			{
-				valoresLidos = linhaLida.split(",");
-				if(valoresLidos[0].compareTo(nomeProduto) == 0){
-				}
-			}
-			
-			leitor.close();
-		}catch(FileNotFoundException ex) {}
-		catch (IOException e) {
-			e.printStackTrace();
+		arquivo = new File(arquivoProduto);
+		if(!arquivo.exists()){
+			arquivo.createNewFile();
 		}
-	}		
+		
+		escritor = new PrintWriter(arquivo);
+		for(Produto p:listProdutos)
+			escritor.append(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
+							+ p.getFornecedor() + "," + p.getQuantidade()+'\n');
+		
+		escritor.close();
+	}
 	
 }

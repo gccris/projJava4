@@ -108,4 +108,14 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 	public String compraProduto(String nomeProduto,int quantidade) {
 		return GerenciaSupermecado.compraProduto(nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
 	}
+	public void atualizaEstoque(Produto p,int quantidade){
+		p.setQuantidade(quantidade);
+		try {
+			manipulacaoArquivos.atualizaEstoque(listProdutos);
+			GerenciaSupermecado.mandaEmailClientes(p,listProdDesejados,listUsuarios);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

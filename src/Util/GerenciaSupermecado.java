@@ -1,6 +1,8 @@
 package Util;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import Model.*;
 
@@ -40,7 +42,9 @@ public class GerenciaSupermecado {
 			if(p.getNome().compareTo(nomeProduto)==0){
 				if(p.getQuantidade()>=quantidade){
 					p.setQuantidade(p.getQuantidade()-quantidade);
-					manipulacaoArq.atualizaEstoque(nomeProduto,p.getQuantidade()-quantidade);
+					try {
+						manipulacaoArq.atualizaEstoque(listProdutos);
+					} catch (IOException e) {e.printStackTrace();}
 					return "Compra efetuada com sucesso";
 				}
 				else
@@ -48,5 +52,27 @@ public class GerenciaSupermecado {
 			}
 		}
 		return "Compra não efetuada";
+	}
+	
+	public static Usuario getUsuarioPorID(String ID, ArrayList<Usuario> listUsuarios){
+		for(Usuario u: listUsuarios){
+			if(u.getId().compareTo(ID)==0)
+				return u;
+		}
+		return null;
+	}
+	
+	public static void mandaEmailClientes(Produto p, ArrayList<ProdDesejados> listProdDesejados,ArrayList<Usuario> listUsuarios){
+		for(ProdDesejados pDesejado : listProdDesejados){
+			if(p.getNome().compareTo(pDesejado.getNomeProduto())==0){
+				Usuario u = getUsuarioPorID(pDesejado.getIdUsuario(),listUsuarios);
+				if(u != null){
+					Properties prop = System.getProperties();
+					prop.setProperty("mail.smtp.host", "localhost");
+					//Session session = Session.getDefaultInstance(prop);
+				}
+					
+			}
+		}
 	}
 }

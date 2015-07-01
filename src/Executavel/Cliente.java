@@ -14,7 +14,7 @@ public class Cliente{
     private String host;
     private int porta;
 	private ObjectInputStream input;
-	private DataOutputStream output;
+	private ObjectOutputStream output;
 	private ArrayList<Produto> listProdutos;
 	private ArrayList<ProdDesejados> listProdDesejados;
 	private String idCliente;
@@ -33,12 +33,12 @@ public class Cliente{
 	private void executa() throws UnknownHostException, IOException {
 		Socket cSocket = new Socket(this.host, this.porta);
 		this.input = new ObjectInputStream(cSocket.getInputStream());
-		this.output = new DataOutputStream(cSocket.getOutputStream());
+		this.output = new ObjectOutputStream(cSocket.getOutputStream());
 		//chama parte visual
 	}
 
 	public void login(String login,String senha) throws IOException{
-		this.output.writeChars("0,"+login+","+senha);  //avisa e manda os parametros para pesquisa para o servidor
+		this.output.writeObject(new String("0,"+login+","+senha));  //avisa e manda os parametros para pesquisa para o servidor
 		this.output.flush();
 		if (this.input.readBoolean()){//recebe a resposta do servidor
 			this.idCliente = login;
@@ -47,7 +47,7 @@ public class Cliente{
 	}
 	
 	public void criaUsuario(String id, String senha,String nome,String endereco,String telefone,String email) throws IOException{
-		this.output.writeChars("1,"+id+","+senha+","+nome+","+endereco+","+telefone+","+email);
+		this.output.writeObject(new String("1,"+id+","+senha+","+nome+","+endereco+","+telefone+","+email));
 		this.output.flush();
 		if (this.input.readBoolean()){//recebe a resposta do servidor
 			//TODO avisa usuario que já existe id

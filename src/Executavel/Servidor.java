@@ -3,6 +3,7 @@ package Executavel;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -61,7 +62,7 @@ public class Servidor{//aqui sera também uma aplication, fazer tela aqui
 			       
 				       // cria tratador de cliente numa nova thread
 				        TrataCliente tc = 										//abre uma thread para receber as informações do cliente
-				           new TrataCliente(new DataInputStream(cliente.getInputStream()), new ObjectOutputStream(cliente.getOutputStream()), this);
+				           new TrataCliente(cliente.getInputStream(),cliente.getOutputStream(), this);
 				        new Thread(tc).start();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block

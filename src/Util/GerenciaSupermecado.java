@@ -7,6 +7,8 @@ import Model.*;
 public class GerenciaSupermecado {
 
 	public static Boolean verificaLogin(String user,String senha,ArrayList<Usuario> listUsers){
+		if(listUsers == null)
+			return false;
 		for(Usuario u : listUsers){
 			if(u.getId().compareTo(user) == 0 && u.getSenha().compareTo(senha) == 0)
 				return true;

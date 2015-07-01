@@ -3,8 +3,11 @@ package Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -138,7 +141,7 @@ public class ManipulaCSV {
 	}
 	
 	public Boolean cadastrarUsuario(Usuario user) throws IOException{
-		PrintWriter escritor;
+		PrintStream escritor;
 		File arquivo;
 		/*if(!existeUsuario(user.getId(), user.getSenha())){
 			return false;	//usuario ja cadastrado
@@ -149,17 +152,17 @@ public class ManipulaCSV {
 			arquivo.createNewFile();
 		}
 		
-		escritor = new PrintWriter(arquivo);
-		escritor.append(user.getId() + "," + user.getSenha() + "," + user.getNome() + "," 
+		escritor = new PrintStream(new FileOutputStream(arquivo,true));
+		escritor.println(user.getId() + "," + user.getSenha() + "," + user.getNome() + "," 
 						+ user.getEndereco() + "," + user.getEmail()+ "," 
-						+ user.getTelefone() + '\n');
+						+ user.getTelefone());
 		
 		escritor.close();
 		return true;
 	}
 	
 	public void registraVenda(String nomeUsuario,Produto produto, int quantidade) throws IOException{
-		PrintWriter escritor;
+		PrintStream escritor;
 		File arquivo;
 		Date d = new Date();
 		String dataFormat = d.getDate() + "/" + d.getMonth() + "/" + d.getYear();
@@ -169,8 +172,9 @@ public class ManipulaCSV {
 			arquivo.createNewFile();
 		}
 		
-		escritor = new PrintWriter(arquivo);
-		escritor.append(nomeUsuario + "," + produto.getNome() + "," + quantidade + ","+dataFormat); 
+		escritor = new PrintStream(new FileOutputStream(arquivo,true));
+		escritor.println(nomeUsuario + "," + produto.getNome() + "," + quantidade + ","+dataFormat);
+		
 		
 		escritor.close();
 	}
@@ -216,7 +220,7 @@ public class ManipulaCSV {
 
 
 	public void atualizaEstoque(ArrayList<Produto> listProdutos) throws IOException {
-		PrintWriter escritor;
+		PrintStream escritor;
 		File arquivo;
 
 		arquivo = new File(arquivoProduto);
@@ -224,16 +228,16 @@ public class ManipulaCSV {
 			arquivo.createNewFile();
 		}
 		
-		escritor = new PrintWriter(arquivo);
+		escritor = new PrintStream(arquivo);
 		for(Produto p:listProdutos) 
-			escritor.append(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
-							+ p.getFornecedor() + "," + p.getQuantidade()+'\n');
+			escritor.println(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
+							+ p.getFornecedor() + "," + p.getQuantidade());
 		
 		escritor.close();
 	}
 	
 	public void adicionaDesejo(ProdDesejados p) throws IOException {
-		PrintWriter escritor;
+		PrintStream escritor;
 		File arquivo;
 
 		arquivo = new File(arquivoProdDesejado);
@@ -241,15 +245,15 @@ public class ManipulaCSV {
 			arquivo.createNewFile();
 		}
 		
-		escritor = new PrintWriter(arquivo);
-		escritor.append(p.getIdUsuario()+ "," + p.getNomeProduto()+'\n');
+		escritor = new PrintStream(new FileOutputStream(arquivo,true));	//escreve no fim do arquivo
+		escritor.println(p.getIdUsuario()+ "," + p.getNomeProduto());
 		
 		escritor.close();
 	}
 
 
 	public void adicionaProduto(Produto p) throws IOException {
-		PrintWriter escritor;
+		PrintStream escritor;
 		File arquivo;
 
 		arquivo = new File(arquivoProduto);
@@ -257,9 +261,9 @@ public class ManipulaCSV {
 			arquivo.createNewFile();
 		}
 		
-		escritor = new PrintWriter(arquivo);
-		escritor.append(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
-				+ p.getFornecedor() + "," + p.getQuantidade()+'\n');
+		escritor = new PrintStream(new FileOutputStream(arquivo,true));
+		escritor.println(p.getNome()+ "," + p.getPreço() + "," + p.getValidade() + "," 
+				+ p.getFornecedor() + "," + p.getQuantidade());
 		
 		escritor.close();
 	}

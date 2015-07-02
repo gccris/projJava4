@@ -74,7 +74,7 @@ public class TrataCliente implements Runnable {
 				}
 				if(parts[0].compareTo("5") == 0){//COMPRAR PRODUTO
 					try {
-						outCliente.writeObject(servidor.compraProduto(parts[0],parts[1],Integer.parseInt(parts[2])));
+						outCliente.writeObject(servidor.compraProduto(parts[1],parts[2],Integer.parseInt(parts[3])));
 					} catch (NumberFormatException e) {
 						e.printStackTrace();
 					} catch (IOException e) {

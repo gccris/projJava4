@@ -165,7 +165,7 @@ public class ManipulaCSV {
 		PrintStream escritor;
 		File arquivo;
 		Date d = new Date();
-		String dataFormat = d.getMonth() + "/" + d.getDate() + "/" + d.getYear();
+		String dataFormat = (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getYear();
 		
 		arquivo = new File(arquivoVendas);
 		if(!arquivo.exists()){

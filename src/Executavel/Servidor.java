@@ -32,6 +32,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import javax.swing.JOptionPane;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -219,7 +221,15 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		manipulacaoArquivos.adicionaListaDesejos(listProdDesejados);//refaz o arquivo de desejos
 	}
 	
-	public String compraProduto(String nomeUsuario, String nomeProduto,int quantidade) throws IOException {
+	public String compraProduto(String idUsuario, String nomeProduto,int quantidade) throws IOException {
+		String nomeUsuario = "";
+		for(Usuario u : this.listUsuarios)
+		{
+			if(u.getId().equals(idUsuario)) {
+				nomeUsuario = u.getNome();
+				break;
+			}
+		}
 		return GerenciaSupermecado.compraProduto(nomeUsuario,nomeProduto,quantidade,listProdutos,manipulacaoArquivos);
 	}
 	
@@ -312,7 +322,6 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 					} catch (DocumentException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 			}
@@ -355,6 +364,16 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		Label prodCheckLB = new Label("Em falta");
 		HBox prodCheck = new HBox(7);
 		prodCheck.getChildren().addAll(prodCheckLB, prodCheckBox);
+		
+		prodCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+		        if(!prodCheckBox.isSelected())
+		        	atualizaTabelaProduto();
+		        else
+		        	atualizaTabProdutoEmFalta();
+		    }
+		});
 		
 		Button prodCad = new Button("NOVO PRODUTO");
 		
@@ -430,9 +449,19 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		}
 		atualizaTabelaProduto();
 	}
+	
 	public void atualizaTabelaProduto(){
 		prodList.clear();
 		for(Produto p:listProdutos)
 			prodList.add(p);
 	}
+	
+	public void atualizaTabProdutoEmFalta(){
+		prodList.clear();
+		for(Produto p:listProdutos) {
+			if(p.getQuantidade() == 0)
+				prodList.add(p);
+		}
+	}
+	
 }

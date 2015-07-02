@@ -11,6 +11,8 @@ import java.util.TimerTask;
 import javax.swing.JOptionPane;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -30,7 +32,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import Model.ProdDesejados;
 import Model.Produto;
 
@@ -129,7 +130,7 @@ public class Cliente extends Application{
 	}
 	
 	public void compraProduto(Produto p,String quantidade) throws IOException{
-		this.output.writeObject(new String("5,"+p.getNome()+","+quantidade));
+		this.output.writeObject(new String("5,"+this.idCliente+","+p.getNome()+","+quantidade));
 		this.output.flush();
 		String retorno;
 		try {
@@ -323,6 +324,17 @@ public class Cliente extends Application{
 		HBox prodCheck = new HBox(7);
 		prodCheck.getChildren().addAll(prodCheckLB, prodCheckBox);
 		
+		prodCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+		        if(prodCheckBox.isSelected())
+		        	atualizaTabProdutoDisp();
+		        else
+		        	atualizaTabelaProduto();
+		    }
+		});
+
+		
 		VBox layoutProd = new VBox(7);
 		layoutProd.getChildren().addAll(prodBar, prodSearch, prodCheck, prodAll);
 		layoutProd.setAlignment(Pos.TOP_CENTER);
@@ -370,7 +382,10 @@ public class Cliente extends Application{
 						  public void run() {
 							  try {
 								loadListProdutos();
-								atualizaTabelaProduto();
+								if(prodCheckBox.isSelected())
+									atualizaTabelaProduto();
+								else
+									atualizaTabProdutoDisp();
 								loadListProdDesejados();
 								atualizaTabelaDesejos();
 							} catch (IOException e) {
@@ -441,10 +456,19 @@ public class Cliente extends Application{
 		for(Produto p:listProdutos)
 			prodList.add(p);
 	}
+	
 	void atualizaTabelaDesejos(){
 		cartList.clear();
 		for(ProdDesejados pd:listProdDesejados){
 			cartList.add(pd);
+		}
+	}
+	
+	public void atualizaTabProdutoDisp(){
+		prodList.clear();
+		for(Produto p:listProdutos) {
+			if(p.getQuantidade() != 0)
+				prodList.add(p);
 		}
 	}
 }

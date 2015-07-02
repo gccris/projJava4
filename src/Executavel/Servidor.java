@@ -65,6 +65,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	private ArrayList<Usuario> listUsuarios;
 	private ArrayList<Produto> listProdutos;
 	private ArrayList<ProdDesejados> listProdDesejados;
+    Runnable acceptClients;
 	Stage window;
 	Scene cadScene, prodScene;
 	ArrayList<Produto> cartListProd = new ArrayList<>();
@@ -92,10 +93,11 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	    this.listUsuarios = manipulacaoArquivos.loadUsuarios();
 	    this.setListProdutos(manipulacaoArquivos.loadProdutos());
 	    this.listProdDesejados = manipulacaoArquivos.loadProdDesejado();
+
 		try {
 			servidor = new ServerSocket(this.porta);
 
-			Runnable acceptClients = () -> { //thread para ficar aceitando os usuarios
+			acceptClients = () -> { //thread para ficar aceitando os usuarios
 				while(true){
 					Socket cliente;
 					try {
@@ -116,7 +118,6 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 			};
 		new Thread(acceptClients).start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -125,6 +126,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		 return GerenciaSupermecado.verificaLogin(user,senha,listUsuarios);
 	}
 	
+	//Recebe solicitacao do cliente e realiza cadastro de usuario
 	public Boolean criaUsuario(String id, String senha,String nome,String endereco,String telefone,String email) throws IOException{
 		if(GerenciaSupermecado.existeUsuario(id, listUsuarios))
 			return false;
@@ -140,6 +142,7 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		return listProdutos;
 	}
 	
+	//Funcao responsavel pela geracao de relatorios
 	public String geraRelatorio(String mes, String dia) throws DocumentException, IOException {
 	  	ArrayList<Venda> vendas = manipulacaoArquivos.loadVendas();
 	  	
@@ -171,9 +174,9 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		    for(Venda v : vendas){
 		    	escreve = false;
 		        cal.setTime(v.getData());
-		        String mesVenda = Integer.toString(cal.get(Calendar.MONTH) + 1);
-		        String diaVenda = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-		    			
+		        String mesVenda = Integer.toString(cal.get(Calendar.MONTH) + 1);//formata o mes
+		        String diaVenda = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));//formata o dia
+		    		
 		        if(mes != null && dia != null) {
 		        	if(mes.equals(mesVenda) && dia.equals(diaVenda)){
 		        		escreve = true;
@@ -215,12 +218,14 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		return GerenciaSupermecado.loadProdDesejados(idCliente,listProdDesejados);
 	}
 	
+	//Remove da lista de desejados um produto
 	public void removeProdDesejado(String idCliente, String nomeProduto) throws IOException {
 		ProdDesejados pRemover = new ProdDesejados(idCliente, nomeProduto);
 		GerenciaSupermecado.removeProdDesejado(pRemover,listProdDesejados);
 		manipulacaoArquivos.adicionaListaDesejos(listProdDesejados);//refaz o arquivo de desejos
 	}
 	
+	//Trata solicitacao de compra do cliente
 	public String compraProduto(String idUsuario, String nomeProduto,int quantidade) throws IOException {
 		String nomeUsuario = "";
 		for(Usuario u : this.listUsuarios)
@@ -234,19 +239,27 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 	}
 	
 	public void requisitarNotificacao(String idCliente, String nomeProduto) throws IOException {
-		GerenciaSupermecado.requisitarNotificacao(idCliente,nomeProduto,listProdDesejados);
-		manipulacaoArquivos.adicionaDesejo(new ProdDesejados(idCliente, nomeProduto));
+		if(!listProdDesejados.contains(new ProdDesejados(idCliente,nomeProduto))){
+			GerenciaSupermecado.requisitarNotificacao(idCliente,nomeProduto,listProdDesejados);
+			manipulacaoArquivos.adicionaDesejo(new ProdDesejados(idCliente, nomeProduto));
+		}
 	}
 	
 	public void cadastraNovoProduto(String nome,String preco,String validade,String fornecedor, int quantidade){
+		
 		Produto p = new Produto(nome,preco,validade,fornecedor,quantidade);
-		listProdutos.add(p);
-		try {
-			manipulacaoArquivos.adicionaProduto(p);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(!listProdutos.contains(p)){
+			listProdutos.add(p);
+			try {
+				manipulacaoArquivos.adicionaProduto(p);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			JOptionPane.showMessageDialog(null, "Produto: "+nome+" cadastrado");
 		}
+		else
+			JOptionPane.showMessageDialog(null, "Produto: "+nome+" já cadastrado");
 	}
 	
 	public void start(Stage primaryStage) throws Exception{
@@ -310,8 +323,8 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 				String dia = (String) cbDia.getValue();
 				String mes = (String) cbMes.getValue();
 				
-				if(dia == " ") dia = null;
-				if(mes == " ") mes = null;
+				if(dia == " ") dia = null;	//caso de nenhum valor de dia selecionado
+				if(mes == " ") mes = null;	//caso de nenhum valor de mes selecionado
 				
 				if(dia == null  && mes == null)
 					JOptionPane.showMessageDialog(null, "Selecione um dos parametros para a geração do relatorio: mês ou dia.");
@@ -357,7 +370,9 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		prodAll.getChildren().addAll(prodTable, prodInfo);
 		
 		TextField prodSearchTF = new TextField();
+		prodSearchTF.setPromptText("Em breve...");
 		Button prodSearchBT = new Button("PROCURAR");
+		prodSearchBT.setDisable(true);
 		HBox prodSearch = new HBox(7);
 		prodSearch.getChildren().addAll(prodSearchTF, prodSearchBT);
 		CheckBox prodCheckBox = new CheckBox();
@@ -421,16 +436,23 @@ public class Servidor extends Application{//aqui sera também uma aplication, faz
 		cadOK.setOnAction(e->{
 			this.cadastraNovoProduto(cadNameTF.getText(),cadValueTF.getText() ,cadValidTF.getText(), cadFornTF.getText(), 0);
 			atualizaTabelaProduto();
+			cadNameTF.clear();
+			cadValueTF.clear();
+			cadValidTF.clear();
+			cadFornTF.clear();
 			window.setScene(prodScene);
-			JOptionPane.showMessageDialog(null, "Produto: "+cadNameTF.getText()+" cadastrado");
+
 		});
 		cadCancel.setOnAction(e->{
+			cadNameTF.clear();
+			cadValueTF.clear();
+			cadValidTF.clear();
+			cadFornTF.clear();
 			window.setScene(prodScene);
 		});
 		
 		
 		//-------------------------
-		
 		
 		prodScene = new Scene(layoutProd, 600, 600);
 		cadScene = new Scene(layoutCad, 600, 600);

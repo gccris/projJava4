@@ -61,4 +61,13 @@ public class Produto implements Serializable{
 	public void setQuantidade(int quantidade) {
 		this.quantidade = quantidade;
 	}
+	
+	public boolean equals(Object obj){
+		if(obj == null)
+			return false;
+		Produto p = (Produto) obj;
+		if(p.getNome().compareTo(this.getNome()) == 0)
+			return true;
+		return false;
+	}
 }

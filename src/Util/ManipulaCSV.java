@@ -14,12 +14,15 @@ import java.util.Date;
 
 import Model.*;
 
+//Classe responsavel pelas funcoes de escrita e leitura nos arquivos csv
 public class ManipulaCSV {
+	
 	private String arquivoUsuario;
 	private String arquivoProdDesejado;
 	private String arquivoProduto;
 	private String arquivoVendas;
 	
+	//Construtor com todos os campos
 	public ManipulaCSV(String arqUser,String arqProduto, String arqProdDesejado,String arquivoVendas){
 		this.setArquivoUsuario(arqUser);
 		this.setArquivoProduto(arqProduto);
@@ -27,6 +30,7 @@ public class ManipulaCSV {
 		this.setArquivoVendas(arquivoVendas);
 	}
 	
+	//Getters e setters
 	public String getArquivoVendas() {
 		return arquivoVendas;
 	}
@@ -49,18 +53,18 @@ public class ManipulaCSV {
 		return arquivoProduto;
 	}
 
-
 	public void setArquivoProduto(String arquivoProduto) {
 		this.arquivoProduto = arquivoProduto;
 	}
 	
+	//Le o arquivo de usuarios e retorna os registros 
 	public ArrayList<Usuario> loadUsuarios(){
 		BufferedReader leitor;
 		
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoUsuario()));
 		} catch(FileNotFoundException ex) {
-			return new ArrayList<Usuario>();	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<Usuario>();	//caso o arquivo nao exista retorna lista vazia;
 		}
 		
 		ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
@@ -68,7 +72,7 @@ public class ManipulaCSV {
 		String[] valoresLidos = new String[6];
 		
 		try {
-			while ((linhaLida = leitor.readLine()) != null)
+			while ((linhaLida = leitor.readLine()) != null) //adiciona os usuarios na lista
 			{
 				valoresLidos = linhaLida.split(",");
 				usuarios.add(new Usuario(valoresLidos[0],valoresLidos[1],valoresLidos[2],
@@ -83,13 +87,14 @@ public class ManipulaCSV {
 		return usuarios;
 	}
 	
+	//Le o arquivo de produtos e retorna os registros 
 	public ArrayList<Produto> loadProdutos(){
 		BufferedReader leitor;
 		
 		try {
 			leitor = new BufferedReader(new FileReader(getArquivoProduto()));
 		} catch(FileNotFoundException ex) {
-			return new ArrayList<Produto>();	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<Produto>();	//caso o arquivo nao exista retorna lista vazia;
 		}
 		
 		ArrayList<Produto> produtos = new ArrayList<Produto>();
@@ -97,7 +102,7 @@ public class ManipulaCSV {
 		String[] valoresLidos = new String[4];
 		
 		try {
-			while ((linhaLida = leitor.readLine()) != null)
+			while ((linhaLida = leitor.readLine()) != null)	//adiciona os produtos nalista
 			{
 				valoresLidos = linhaLida.split(",");
 				produtos.add(new Produto(valoresLidos[0],valoresLidos[1],
@@ -116,9 +121,9 @@ public class ManipulaCSV {
 		BufferedReader leitor;
 		
 		try {
-			leitor = new BufferedReader(new FileReader(getArquivoProdDesejado()));
+			leitor = new BufferedReader(new FileReader(getArquivoProdDesejado()));	
 		} catch(FileNotFoundException ex) {
-			return new ArrayList<ProdDesejados>();	//caso o arquivo nao exista retorna nulo;
+			return new ArrayList<ProdDesejados>();	//caso o arquivo nao exista retorna lista vazia;
 		}
 		
 		ArrayList<ProdDesejados> estoque = new ArrayList<ProdDesejados>();
@@ -126,7 +131,7 @@ public class ManipulaCSV {
 		String[] valoresLidos = new String[2];
 		
 		try {
-			while ((linhaLida = leitor.readLine()) != null)
+			while ((linhaLida = leitor.readLine()) != null)	//retorna lista de produtos desejados
 			{
 				valoresLidos = linhaLida.split(",");
 				estoque.add(new ProdDesejados(valoresLidos[0],valoresLidos[1]));
@@ -143,19 +148,16 @@ public class ManipulaCSV {
 	public Boolean cadastrarUsuario(Usuario user) throws IOException{
 		PrintStream escritor;
 		File arquivo;
-		/*if(!existeUsuario(user.getId(), user.getSenha())){
-			return false;	//usuario ja cadastrado
-		}*/
 
 		arquivo = new File(arquivoUsuario);
-		if(!arquivo.exists()){
+		if(!arquivo.exists()){	//caso o arquivo nao exista, cria o arquivo
 			arquivo.createNewFile();
 		}
 		
 		escritor = new PrintStream(new FileOutputStream(arquivo,true));
 		escritor.println(user.getId() + "," + user.getSenha() + "," + user.getNome() + "," 
 						+ user.getEndereco() + "," + user.getEmail()+ "," 
-						+ user.getTelefone());
+						+ user.getTelefone());	//escreve os dados do usuario no arquivo
 		
 		escritor.close();
 		return true;
@@ -174,6 +176,7 @@ public class ManipulaCSV {
 		
 		escritor = new PrintStream(new FileOutputStream(arquivo,true));
 		escritor.println(nomeUsuario + "," + produto.getNome() + "," + quantidade + ","+dataFormat);
+		//escreve os dados da venda no arquivo
 		
 		
 		escritor.close();
@@ -219,7 +222,7 @@ public class ManipulaCSV {
 		this.arquivoProdDesejado = arquivoProdDesejado;
 	}
 
-
+	//Quando um produto é vendido esta funcao é resposavel por atualizar o arquivo de produtos estoque
 	public void atualizaEstoque(ArrayList<Produto> listProdutos) throws IOException {
 		PrintStream escritor;
 		File arquivo;
@@ -237,6 +240,7 @@ public class ManipulaCSV {
 		escritor.close();
 	}
 	
+	//Adiciona desejo na lista de produtos desejados a receber notificacao
 	public void adicionaDesejo(ProdDesejados p) throws IOException {
 		PrintStream escritor;
 		File arquivo;
@@ -252,7 +256,7 @@ public class ManipulaCSV {
 		escritor.close();
 	}
 
-
+	//Adiciona produto na lista de produtos 
 	public void adicionaProduto(Produto p) throws IOException {
 		PrintStream escritor;
 		File arquivo;
@@ -269,6 +273,7 @@ public class ManipulaCSV {
 		escritor.close();
 	}
 
+	//Escreve a lista de desejos no arquivo
 	public void adicionaListaDesejos(ArrayList<ProdDesejados> listProdDesejados) throws IOException {
 		PrintStream escritor;
 		File arquivo;

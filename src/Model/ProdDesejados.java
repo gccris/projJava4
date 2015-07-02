@@ -29,6 +29,8 @@ public class ProdDesejados implements Serializable {
 	}
 	
 	public boolean equals(Object obj){
+		if(obj == null)
+			return false;
 		ProdDesejados pd = (ProdDesejados) obj;
 		if(pd.getIdUsuario().compareTo(this.getIdUsuario()) == 0 && pd.getNomeProduto().compareTo(this.getNomeProduto()) == 0)
 			return true;

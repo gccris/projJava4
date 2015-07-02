@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -50,19 +51,26 @@ public class Cliente extends Application{
 	ObservableList<Produto> prodList = FXCollections.observableArrayList();
 	
 	public static void main(String[] args) throws UnknownHostException, IOException{
-	     // dispara cliente
 		launch(args);
    }
 	
 	private void executa() throws UnknownHostException, IOException {
-		this.porta = 12345;
+		BufferedReader leitor;
+		try {
+			leitor = new BufferedReader(new FileReader("host.txt"));
+			 this.host = leitor.readLine();
+		} catch(FileNotFoundException ex) {
+			ex.printStackTrace();//caso o arquivo nao exista retorna lista vazia;
+		}
+	    this.porta = 12345;
 		this.listProdutos = new ArrayList<Produto>();
 		this.listProdDesejados = new ArrayList<ProdDesejados>();
-		Socket cSocket = new Socket(InetAddress.getLocalHost(), this.porta);
+		Socket cSocket = new Socket(this.host, this.porta);
 		this.input = new ObjectInputStream(cSocket.getInputStream());
 		this.output = new ObjectOutputStream(cSocket.getOutputStream());	
 	}
 
+	//Solicita login ao servidor
 	public Boolean login(String login,String senha) throws IOException{
 		this.output.writeObject(new String("0,"+login+","+senha));  //avisa e manda os parametros para pesquisa para o servidor
 		this.output.flush();
@@ -74,6 +82,7 @@ public class Cliente extends Application{
 			return false;
 	}
 	
+	//Escreve ao servidor novo usuario a ser cadastrado
 	public void criaUsuario(String id, String senha,String nome,String endereco,String telefone,String email) throws IOException{
 		this.output.writeObject(new String("1,"+id+","+senha+","+nome+","+endereco+","+telefone+","+email));
 		this.output.flush();
@@ -82,6 +91,7 @@ public class Cliente extends Application{
 		else
 			JOptionPane.showMessageDialog(null, "Usuario cadastrado");
 	}
+	
 	
 	public void loadListProdutos() throws IOException{
 			this.output.writeObject(new String("2"));
@@ -110,6 +120,8 @@ public class Cliente extends Application{
 		}
 		
 	}
+	
+	//a lista de prod desejados do cliente só será alterada na proxima iteração do timer
 	public void verificaListaProdDesejados(){
 		for(ProdDesejados lp:listProdDesejados){
 			for(Produto p:listProdutos){
@@ -120,7 +132,6 @@ public class Cliente extends Application{
 							this.output.writeObject(new String("4,"+idCliente+","+lp.getNomeProduto()));//remove o produto desejado da lista do cliente no servidor
 							this.output.flush();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -129,6 +140,7 @@ public class Cliente extends Application{
 		}
 	}
 	
+	//Solicita ao servidor a compra a ser realizada
 	public void compraProduto(Produto p,String quantidade) throws IOException{
 		this.output.writeObject(new String("5,"+this.idCliente+","+p.getNome()+","+quantidade));
 		this.output.flush();
@@ -137,7 +149,6 @@ public class Cliente extends Application{
 			retorno = (String) this.input.readObject();
 			JOptionPane.showMessageDialog(null, retorno);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -316,7 +327,9 @@ public class Cliente extends Application{
 		
 		
 		TextField prodSearchTF = new TextField();
+		prodSearchTF.setPromptText("Em breve...");
 		Button prodSearchBT = new Button("PROCURAR");
+		prodSearchBT.setDisable(true);
 		HBox prodSearch = new HBox(7);
 		prodSearch.getChildren().addAll(prodSearchTF, prodSearchBT);
 		CheckBox prodCheckBox = new CheckBox();
@@ -367,7 +380,7 @@ public class Cliente extends Application{
 		VBox layoutCart = new VBox(15);
 		layoutCart.getChildren().addAll(cartBar, cartTable, cartButtons);
 		layoutCart.setAlignment(Pos.TOP_CENTER);
-		
+		Timer timer = new Timer();
 		//	BUTTONS		XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		loginOK.setOnAction(e -> {
 			try {
@@ -377,15 +390,15 @@ public class Cliente extends Application{
 					loadListProdDesejados();
 					atualizaTabelaProduto();
 					atualizaTabelaDesejos();
-					Timer timer = new Timer();
+					
 					timer.schedule(new TimerTask() {
 						  public void run() {
 							  try {
 								loadListProdutos();
 								if(prodCheckBox.isSelected())
-									atualizaTabelaProduto();
-								else
 									atualizaTabProdutoDisp();
+								else
+									atualizaTabelaProduto();
 								loadListProdDesejados();
 								atualizaTabelaDesejos();
 							} catch (IOException e) {
@@ -394,7 +407,7 @@ public class Cliente extends Application{
 							}
 							  
 						  }
-					}, 30*1000,30*1000);
+					}, 10*1000,10*1000);
 					window.setScene(prodScene);
 				}
 				else{
@@ -412,12 +425,24 @@ public class Cliente extends Application{
 		cadOK.setOnAction(e ->{
 			try {
 				criaUsuario(cadUserTF.getText(), cadPassTF.getText(), cadNameTF.getText(), cadAddressTF.getText(), cadPassTF.getText(), cadEmailTF.getText());
+				cadUserTF.clear();
+				cadPassTF.clear();
+				cadNameTF.clear();
+				cadAddressTF.clear();
+				cadPassTF.clear();
+				cadEmailTF.clear();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
 		cadCancel.setOnAction(e -> {
+			cadUserTF.clear();
+			cadPassTF.clear();
+			cadNameTF.clear();
+			cadAddressTF.clear();
+			cadPassTF.clear();
+			cadEmailTF.clear();
 			window.setScene(loginScene);
 		});
 		
@@ -440,7 +465,6 @@ public class Cliente extends Application{
 		
 		
 		//-------------------------
-		
 		
 		loginScene = new Scene(layoutLogin, 600, 600);
 		cadScene = new Scene(layoutCad, 600, 600);

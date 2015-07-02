@@ -7,6 +7,8 @@ import Model.*;
 
 public class GerenciaSupermecado {
 
+	
+	//verifica se o login do usuario está correto
 	public static Boolean verificaLogin(String user,String senha,ArrayList<Usuario> listUsers){
 		if(listUsers == null)
 			return false;
@@ -17,6 +19,7 @@ public class GerenciaSupermecado {
 		return false;
 	}
 	
+	//Verifica se existe usuario na lista de usuarios
 	public static Boolean existeUsuario(String user,ArrayList<Usuario> listUsers){
 		for(Usuario u : listUsers){
 			if(u.getId().compareTo(user) == 0)
@@ -25,6 +28,7 @@ public class GerenciaSupermecado {
 		return false;
 	}
 
+	//Verifica se produto esta na lista de desejados
 	public static ArrayList<ProdDesejados> loadProdDesejados(String idCliente,ArrayList<ProdDesejados> listProdDesejados) {
 		ArrayList<ProdDesejados> produtosDesejados = new ArrayList<ProdDesejados>();
 		for(ProdDesejados p: listProdDesejados){
@@ -38,6 +42,7 @@ public class GerenciaSupermecado {
 		listProdDesejados.remove(pRemover);
 	}
 
+	//Realiza a compra do produto atualizando o arquivo de Vendas e de Produtos
 	public static String compraProduto(String nomeUsuario,String nomeProduto,int quantidade,
 									   ArrayList<Produto> listProdutos,ManipulaCSV manipulacaoArq) throws IOException {
 		for(Produto p: listProdutos){
@@ -55,6 +60,7 @@ public class GerenciaSupermecado {
 		return "Compra não efetuada";
 	}
 
+	//Adiciona na lista de desejos um novo produto desejado a receber notificacao
 	public static void requisitarNotificacao(String idCliente,String nomeProduto, ArrayList<ProdDesejados> listProdDesejados) {
 		listProdDesejados.add(new ProdDesejados(idCliente, nomeProduto));
 	}

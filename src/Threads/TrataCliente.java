@@ -20,7 +20,7 @@ public class TrataCliente implements Runnable {
 	public TrataCliente(InputStream inCliente,OutputStream outCliente, Servidor servidor) {
 		try {
 			this.outCliente = new ObjectOutputStream(outCliente); 
-			this.outCliente.flush();
+			this.outCliente.flush();	//flush no header do inputstream correspondente
 			
 			this.inCliente = new ObjectInputStream(inCliente);
 			
@@ -38,7 +38,7 @@ public class TrataCliente implements Runnable {
 	public void run() {
 		String linha;
 		try {
-			while ((linha = ((String) inCliente.readObject())) != null) {
+			while ((linha = ((String) inCliente.readObject())) != null) {	//espera vir algum dado do cliente
 				String[] parts = linha.split(",");
 				if(parts[0].compareTo("0") == 0){ //LOGIN
 					
@@ -93,8 +93,6 @@ public class TrataCliente implements Runnable {
 				}
 			 }
 		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 	}
